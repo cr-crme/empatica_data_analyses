@@ -1,0 +1,10 @@
+name: empatica
+channels:
+- conda-forge
+- default
+dependencies:
+- python >=3.10
+- scipy
+- pip
+- pip:
+    - heartpy
