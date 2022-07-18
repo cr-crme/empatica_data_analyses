@@ -7,5 +7,7 @@ dependencies:
 - scipy
 - pip
 - black
+- openpyxl
+- matplotlib
 - pip:
     - heartpy

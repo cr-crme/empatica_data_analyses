@@ -1,2 +1,2 @@
 from .subject import Subject
-from .enums import DataType
+from .enums import DataType, ActivityType
