@@ -15,7 +15,7 @@ class Subject:
         self.hr = []
         for i in range(self.n_dates):
             self.eda.append(EdaReader(self.data_path_folder + self.eda_filename(i)))
-            self.hr.append(HrReader(self.data_path_folder + self.eda_filename(i)))
+            self.hr.append(HrReader(self.data_path_folder + self.hr_filename(i)))
 
     def eda_filename(self, date_index):
         return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.EDA.value}.csv"
