@@ -36,40 +36,70 @@ class EmpaticaReader(ABC):
         self.timings = self._parse_timings(timing_path)
         self.vr_index, self.camp_index, self.meditation_index = self._parse_timings_indices()
 
+    def t(self, activity_type: ActivityType):
+        if activity_type == ActivityType.Camp:
+            return self._t_data_camp
+        elif activity_type == ActivityType.VR:
+            return self._t_data_vr
+        elif activity_type == ActivityType.MEDITATION:
+            return  self._t_data_meditation
+        else:
+            raise ActivityTypeNotImplementedError()
+
+    def daytime(self, activity_type: ActivityType):
+        if activity_type == ActivityType.Camp:
+            return self._daytime_data_camp
+        elif activity_type == ActivityType.VR:
+            return self._daytime_data_vr
+        elif activity_type == ActivityType.MEDITATION:
+            return self._daytime_data_meditation
+        else:
+            raise ActivityTypeNotImplementedError()
+
+    def data(self, activity_type: ActivityType):
+        if activity_type == ActivityType.Camp:
+            return self._data_camp
+        elif activity_type == ActivityType.VR:
+            return self._data_vr
+        elif activity_type == ActivityType.MEDITATION:
+            return self._data_meditation
+        else:
+            raise ActivityTypeNotImplementedError()
+
     @property
-    def t_data_camp(self):
+    def _t_data_camp(self):
         return self.t_data[self.camp_index[0] : self.camp_index[1]]
 
     @property
-    def daytime_data_camp(self):
+    def _daytime_data_camp(self):
         return self.daytime_data[self.camp_index[0] : self.camp_index[1]]
 
     @property
-    def data_camp(self):
+    def _data_camp(self):
         return self.data[self.camp_index[0] : self.camp_index[1], :]
 
     @property
-    def t_data_vr(self):
+    def _t_data_vr(self):
         return self.t_data[self.vr_index[0] : self.vr_index[1]]
 
     @property
-    def daytime_data_vr(self):
+    def _daytime_data_vr(self):
         return self.daytime_data[self.vr_index[0] : self.vr_index[1]]
 
     @property
-    def data_vr(self):
+    def _data_vr(self):
         return self.data[self.vr_index[0] : self.vr_index[1], :]
 
     @property
-    def t_data_meditation(self):
+    def _t_data_meditation(self):
         return self.t_data[self.meditation_index[0] : self.meditation_index[1]]
 
     @property
-    def daytime_data_meditation(self):
+    def _daytime_data_meditation(self):
         return self.daytime_data[self.meditation_index[0] : self.meditation_index[1]]
 
     @property
-    def data_meditation(self):
+    def _data_meditation(self):
         return self.data[self.meditation_index[0] : self.meditation_index[1], :]
 
     @abstractmethod
@@ -84,20 +114,20 @@ class EmpaticaReader(ABC):
         ax: plt.axes = None,
         norm: bool = False,
         **options,
-    ) -> None:
+    ) -> plt.axes:
         """Add the current data to a predefined matplotlib.pyplot figure"""
         if activity_type == ActivityType.All:
             t_data = self.t_data
             data = self.data
         elif activity_type == ActivityType.Camp:
-            t_data = self.t_data_camp
-            data = self.data_camp
+            t_data = self._t_data_camp
+            data = self._data_camp
         elif activity_type == ActivityType.VR:
-            t_data = self.t_data_vr
-            data = self.data_vr
+            t_data = self._t_data_vr
+            data = self._data_vr
         elif activity_type == ActivityType.MEDITATION:
-            t_data = self.t_data_meditation
-            data = self.data_meditation
+            t_data = self._t_data_meditation
+            data = self._data_meditation
         else:
             raise ActivityTypeNotImplementedError()
         data = np.linalg.norm(data, axis=1) if norm else data
@@ -113,6 +143,7 @@ class EmpaticaReader(ABC):
         if norm is None and self.extra_labels() is not None:
             label = [f"{label} / {extra_label}" for extra_label in self.extra_labels()]
         ax.plot(t, data, label=label, **options)
+        return ax
 
     def _read_csv_data(self) -> tuple[np.ndarray, list[datetime], np.ndarray]:
         """Read data from a CSV file. The values must all collected at the same time at the same rate"""

@@ -7,7 +7,7 @@ from .hr_reader import HrReader
 
 
 class Subject:
-    def __init__(self, id_number: str, dates: list[str], data_path_folder: str, load_acc: bool = False, load_eda: bool = True, load_hr: bool = True):
+    def __init__(self, id_number: str, dates: list[str], data_path_folder: str, load_acc: bool = False, load_eda: bool = True, load_hr: bool = True, fast_load: bool = False):
         self.id_number = id_number
         self.dates = dates
         self.data_path_folder = data_path_folder
@@ -29,6 +29,7 @@ class Subject:
                     EdaReader(
                         data_path=self.data_path_folder + self.eda_filename(i),
                         timing_path=self.data_path_folder + "timings.xlsx",
+                        reprocess_eda=not fast_load,
                     )
                 )
 
@@ -74,16 +75,17 @@ class Subject:
         if figure is None:
             title += f" of subject {self.id_number}"
 
-        if activity_type == ActivityType.All:
-            pass
-        elif activity_type == ActivityType.Camp:
-            title += " for 'Camp' activity"
-        elif activity_type == ActivityType.VR:
-            title += " for 'VR' activity"
-        elif activity_type == ActivityType.MEDITATION:
-            title += " during 'meditation'"
-        else:
-            raise ActivityTypeNotImplementedError()
+        if figure is None:
+            if activity_type == ActivityType.All:
+                pass
+            elif activity_type == ActivityType.Camp:
+                title += " for 'Camp' activity"
+            elif activity_type == ActivityType.VR:
+                title += " for 'VR' activity"
+            elif activity_type == ActivityType.MEDITATION:
+                title += " during 'meditation'"
+            else:
+                raise ActivityTypeNotImplementedError()
 
         return title, ylabel
 
@@ -93,6 +95,7 @@ class Subject:
         activity_type: ActivityType = ActivityType.All,
         date_indices: tuple[int, ...] = None,
         figure: plt.figure = None,
+        plot_eda_peaks: bool = False,
         **options,
     ) -> plt.figure:
         """Plot the requested data to a new figure"""
@@ -113,7 +116,9 @@ class Subject:
             elif to_plot == DataType.EDA:
                 if not self.eda:
                     raise DataTypeNotLoadedError("EDA data were not loaded for this subject")
-                self.eda[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
+                ax = self.eda[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
+                if plot_eda_peaks:
+                    self.eda[i].add_peaks_to_plot(ax=ax, activity_type=activity_type, **options)
             elif to_plot == DataType.HR:
                 if not self.hr:
                     raise DataTypeNotLoadedError("HR data were not loaded for this subject")

@@ -9,5 +9,8 @@ dependencies:
 - black
 - openpyxl
 - matplotlib
+- scikit-learn
+- cvxopt
+- pytorch
 - pip:
     - heartpy
