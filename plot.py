@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from empatica import ActivityType, DataType, Subject
+from empatica import ActivityType, DataType, Subject, TimeAxis
 
 data_path_folder = (
     "C:\\Users\\pariterre\\Nextcloud\\Documents\\Technopole\\Projets\\DanielleLevac\\Empatica data\\Data\\"
@@ -20,16 +20,22 @@ def main():
     fig_hr = None
     for subject in subjects:
         fig_eda = subject.plot(
-            to_plot=DataType.EDA, activity_type=ActivityType.Camp, figure=fig_eda, date_indices=date_indices, color="r"
+            to_plot=DataType.EDA, activity_type=ActivityType.MEDITATION, figure=fig_eda, date_indices=date_indices, color="g"
         )
         fig_eda = subject.plot(
-            to_plot=DataType.EDA, activity_type=ActivityType.VR, figure=fig_eda, date_indices=date_indices, color="b"
+            to_plot=DataType.EDA, activity_type=ActivityType.Camp, figure=fig_eda, date_indices=date_indices, color="b"
+        )
+        fig_eda = subject.plot(
+            to_plot=DataType.EDA, activity_type=ActivityType.VR, figure=fig_eda, date_indices=date_indices, color="r"
         )
         fig_hr = subject.plot(
-            DataType.HR, activity_type=ActivityType.Camp, figure=fig_hr, date_indices=date_indices, color="r"
+            DataType.HR, activity_type=ActivityType.MEDITATION, figure=fig_hr, date_indices=date_indices, color="g"
         )
         fig_hr = subject.plot(
-            DataType.HR, activity_type=ActivityType.VR, figure=fig_hr, date_indices=date_indices, color="b"
+            DataType.HR, activity_type=ActivityType.Camp, figure=fig_hr, date_indices=date_indices, color="b"
+        )
+        fig_hr = subject.plot(
+            DataType.HR, activity_type=ActivityType.VR, figure=fig_hr, date_indices=date_indices, color="r"
         )
     fig_eda.legend()
     fig_hr.legend()
