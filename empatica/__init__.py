@@ -1,2 +1,2 @@
 from .subject import Subject
-from .eda_reader import EdaReader
+from .enums import DataType

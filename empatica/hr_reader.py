@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
-class EdaReader:
+class HrReader:
     def __init__(self, path: str):
         self.path = path
         self.initial_t: int | None = None
