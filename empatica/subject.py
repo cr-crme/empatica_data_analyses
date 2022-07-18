@@ -18,16 +18,20 @@ class Subject:
             self.hr.append(HrReader(self.data_path_folder + self.hr_filename(i)))
 
     def eda_filename(self, date_index):
+        """Get the EDA file name associated to date_index"""
         return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.EDA.value}.csv"
 
     def hr_filename(self, date_index):
+        """Get the HR file name associated to date_index"""
         return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.HR.value}.csv"
 
     @property
     def n_dates(self):
+        """Get the number of files there is for this subject"""
         return len(self.dates)
 
     def plot(self, to_plot: DataType):
+        """Plot the requested data to a new figure"""
         if to_plot == DataType.EDA:
             title = f"Skin conductance of subject {self.id_number}"
             ylabel = "Skin conductance (microS)"

@@ -18,9 +18,18 @@ class EmpaticaReader:
         self.initial_t: int | None = None
         self.rate: int | None = None
 
-        self.t_data, self.daytime_data, self.data = self.read_csv_data()
+        self.t_data, self.daytime_data, self.data = self._read_csv_data()
+        self.data_vr, self.data_camp = self._split_data()
 
-    def read_csv_data(self):
+    def add_to_plot(self, in_hour: bool = False) -> None:
+        """Add the current data to a predefined matplotlib.pyplot figure"""
+
+        t = (self.t_data / 3600) if in_hour else self.t_data
+        plt.plot(t, self.data)
+
+    def _read_csv_data(self) -> tuple[np.ndarray, list[datetime], np.ndarray]:
+        """Read data from a CSV file"""
+
         daytime_data = []
         t_data = []
         data = []
@@ -39,6 +48,7 @@ class EmpaticaReader:
                     data.append(_to_float(row[0]))
         return np.array(t_data), daytime_data, np.array(data)
 
-    def add_to_plot(self, in_hour: bool = False):
-        t = (self.t_data / 3600) if in_hour else self.t_data
-        plt.plot(t, self.data)
+    def _split_data(self) -> tuple[np.ndarray, np.ndarray]:
+        data_vr = []
+        data_camp = []
+        return data_vr, data_camp
