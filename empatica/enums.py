@@ -3,7 +3,7 @@ from enum import Enum
 
 class DataType(Enum):
     ACC = "ACC"
-    HR = "HR"
+    HR_BPM = "HR"
     EDA = "EDA"
 
 

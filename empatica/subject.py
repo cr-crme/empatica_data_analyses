@@ -3,18 +3,18 @@ from matplotlib import pyplot as plt
 from .enums import DataType, DataTypeNotLoadedError, DataTypeNotImplementedError, ActivityType, ActivityTypeNotImplementedError
 from .acc_reader import AccReader
 from .eda_reader import EdaReader
-from .hr_reader import HrReader
+from .hr_bpm_reader import HrBpmReader
 
 
 class Subject:
-    def __init__(self, id_number: str, dates: list[str], data_path_folder: str, load_acc: bool = False, load_eda: bool = True, load_hr: bool = True, fast_load: bool = False):
+    def __init__(self, id_number: str, dates: list[str], data_path_folder: str, load_acc: bool = False, load_eda: bool = True, load_hr_bpm: bool = True, fast_load: bool = False):
         self.id_number = id_number
         self.dates = dates
         self.data_path_folder = data_path_folder
 
         self.acc = []
         self.eda = []
-        self.hr = []
+        self.hr_bpm = []
         for i in range(self.n_dates):
             if load_acc:
                 self.acc.append(
@@ -33,10 +33,10 @@ class Subject:
                     )
                 )
 
-            if load_hr:
-                self.hr.append(
-                    HrReader(
-                        data_path=self.data_path_folder + self.hr_filename(i),
+            if load_hr_bpm:
+                self.hr_bpm.append(
+                    HrBpmReader(
+                        data_path=self.data_path_folder + self.hr_bpm_filename(i),
                         timing_path=self.data_path_folder + "timings.xlsx",
                     )
                 )
@@ -49,9 +49,9 @@ class Subject:
         """Get the EDA file name associated to date_index"""
         return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.EDA.value}.csv"
 
-    def hr_filename(self, date_index):
+    def hr_bpm_filename(self, date_index):
         """Get the HR file name associated to date_index"""
-        return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.HR.value}.csv"
+        return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.HR_BPM.value}.csv"
 
     @property
     def n_dates(self):
@@ -66,7 +66,7 @@ class Subject:
         elif to_plot == DataType.EDA:
             title = "Skin conductance"
             ylabel = "Skin conductance (microS)"
-        elif to_plot == DataType.HR:
+        elif to_plot == DataType.HR_BPM:
             title = "Heart rate"
             ylabel = "Heart rate (bpm)"
         else:
@@ -119,10 +119,10 @@ class Subject:
                 ax = self.eda[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
                 if plot_eda_peaks:
                     self.eda[i].add_peaks_to_plot(ax=ax, activity_type=activity_type, **options)
-            elif to_plot == DataType.HR:
-                if not self.hr:
-                    raise DataTypeNotLoadedError("HR data were not loaded for this subject")
-                self.hr[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
+            elif to_plot == DataType.HR_BPM:
+                if not self.hr_bpm:
+                    raise DataTypeNotLoadedError("HR (BPM) data were not loaded for this subject")
+                self.hr_bpm[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
             else:
                 raise DataTypeNotImplementedError()
 

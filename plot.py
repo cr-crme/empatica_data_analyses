@@ -26,7 +26,7 @@ def savefig(fig: plt.figure, data_type: DataType, postfix: str):
 
 def main():
     fig_eda = None
-    fig_hr = None
+    fig_hr_bpm = None
     for subject in subjects:
         fig_eda = subject.plot(
             to_plot=DataType.EDA, activity_type=ActivityType.MEDITATION, figure=fig_eda, date_indices=date_indices, color="g", plot_eda_peaks=False
@@ -37,21 +37,21 @@ def main():
         fig_eda = subject.plot(
             to_plot=DataType.EDA, activity_type=ActivityType.VR, figure=fig_eda, date_indices=date_indices, color="r", plot_eda_peaks=False
         )
-        fig_hr = subject.plot(
-            DataType.HR, activity_type=ActivityType.MEDITATION, figure=fig_hr, date_indices=date_indices, color="g"
+        fig_hr_bpm = subject.plot(
+            DataType.HR_BPM, activity_type=ActivityType.MEDITATION, figure=fig_hr_bpm, date_indices=date_indices, color="g"
         )
-        fig_hr = subject.plot(
-            DataType.HR, activity_type=ActivityType.Camp, figure=fig_hr, date_indices=date_indices, color="b"
+        fig_hr_bpm = subject.plot(
+            DataType.HR_BPM, activity_type=ActivityType.Camp, figure=fig_hr_bpm, date_indices=date_indices, color="b"
         )
-        fig_hr = subject.plot(
-            DataType.HR, activity_type=ActivityType.VR, figure=fig_hr, date_indices=date_indices, color="r"
+        fig_hr_bpm = subject.plot(
+            DataType.HR_BPM, activity_type=ActivityType.VR, figure=fig_hr_bpm, date_indices=date_indices, color="r"
         )
 
     # savefig(fig_eda, data_type=DataType.EDA, postfix='subject06')
-    # savefig(fig_hr, data_type=DataType.HR, postfix='subject06')
+    # savefig(fig_hr_bpm, data_type=DataType.HR_BPM, postfix='subject06')
 
     fig_eda.legend()
-    fig_hr.legend()
+    fig_hr_bpm.legend()
     plt.show()
 
 
