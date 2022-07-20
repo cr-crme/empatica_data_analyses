@@ -3,9 +3,8 @@ import csv
 import datetime
 from matplotlib import pyplot as plt
 import numpy as np
-import openpyxl
 
-from .enums import ActivityType, ActivityTypeNotImplementedError, TimeAxis
+from .enums import ActivityType, TimeAxis
 
 
 def _to_int(value) -> int:
@@ -25,82 +24,23 @@ def _parse_name_and_date(path: str) -> tuple[str, str]:
 
 
 class EmpaticaReader(ABC):
-    def __init__(self, data_path: str, timing_path: str, n_cols: int, rate: int = None):
+    def __init__(self, data_path: str, n_cols: int, rate: int = None):
         self.path = data_path
         self.subject, self.date = _parse_name_and_date(self.path)
         self.initial_t: int | None = None
         self.rate: int | None = rate
         self.n_cols = n_cols
 
-        self.t_data, self.daytime_data, self.data = self._read_csv_data()
-        self.timings = self._parse_timings(timing_path)
-        self.vr_index, self.camp_index, self.meditation_index = self._parse_timings_indices()
+        self.t_data, self.daytime_data, self.actual_data = self._read_csv_data()
 
-    def t(self, activity_type: ActivityType):
-        if activity_type == ActivityType.Camp:
-            return self._t_data_camp
-        elif activity_type == ActivityType.VR:
-            return self._t_data_vr
-        elif activity_type == ActivityType.MEDITATION:
-            return self._t_data_meditation
-        else:
-            raise ActivityTypeNotImplementedError()
+    def t(self, activity_type: ActivityType = None):
+        return self.t_data
 
-    def daytime(self, activity_type: ActivityType):
-        if activity_type == ActivityType.Camp:
-            return self._daytime_data_camp
-        elif activity_type == ActivityType.VR:
-            return self._daytime_data_vr
-        elif activity_type == ActivityType.MEDITATION:
-            return self._daytime_data_meditation
-        else:
-            raise ActivityTypeNotImplementedError()
+    def daytime(self, activity_type: ActivityType = None):
+        return self.daytime_data
 
-    def data(self, activity_type: ActivityType):
-        if activity_type == ActivityType.Camp:
-            return self._data_camp
-        elif activity_type == ActivityType.VR:
-            return self._data_vr
-        elif activity_type == ActivityType.MEDITATION:
-            return self._data_meditation
-        else:
-            raise ActivityTypeNotImplementedError()
-
-    @property
-    def _t_data_camp(self):
-        return self.t_data[self.camp_index[0] : self.camp_index[1]]
-
-    @property
-    def _daytime_data_camp(self):
-        return self.daytime_data[self.camp_index[0] : self.camp_index[1]]
-
-    @property
-    def _data_camp(self):
-        return self.data[self.camp_index[0] : self.camp_index[1], :]
-
-    @property
-    def _t_data_vr(self):
-        return self.t_data[self.vr_index[0] : self.vr_index[1]]
-
-    @property
-    def _daytime_data_vr(self):
-        return self.daytime_data[self.vr_index[0] : self.vr_index[1]]
-
-    @property
-    def _data_vr(self):
-        return self.data[self.vr_index[0] : self.vr_index[1], :]
-
-    @property
-    def _t_data_meditation(self):
-        return self.t_data[self.meditation_index[0] : self.meditation_index[1]]
-
-    @property
-    def _daytime_data_meditation(self):
-        return self.daytime_data[self.meditation_index[0] : self.meditation_index[1]]
-
-    @property
-    def _data_meditation(self):
-        return self.data[self.meditation_index[0] : self.meditation_index[1], :]
+    def data(self, activity_type: ActivityType = None):
+        return self.actual_data
 
     @abstractmethod
     def extra_labels(self) -> tuple[str, ...]:
@@ -116,20 +56,8 @@ class EmpaticaReader(ABC):
         **options,
     ) -> plt.axes:
         """Add the current data to a predefined matplotlib.pyplot figure"""
-        if activity_type == ActivityType.All:
-            t_data = self.t_data
-            data = self.data
-        elif activity_type == ActivityType.Camp:
-            t_data = self._t_data_camp
-            data = self._data_camp
-        elif activity_type == ActivityType.VR:
-            t_data = self._t_data_vr
-            data = self._data_vr
-        elif activity_type == ActivityType.MEDITATION:
-            t_data = self._t_data_meditation
-            data = self._data_meditation
-        else:
-            raise ActivityTypeNotImplementedError()
+        t_data = self.t(activity_type)
+        data = self.data(activity_type)
         data = np.linalg.norm(data, axis=1) if norm else data
 
         t = t_data / time_axis
@@ -164,94 +92,3 @@ class EmpaticaReader(ABC):
                     daytime_data.append(datetime.timedelta(seconds=t_data[-1]) + self.initial_t)
                     data.append(_to_float(row[0].split(",")))
         return np.array(t_data), daytime_data, np.array(data)
-
-    def _parse_timings(self, timing_filepath: str) -> tuple[datetime, ...]:
-        """Get the timing data for VR and Camp, based on the data in the timing file"""
-        desired_columns = (
-            "Time start VR",
-            "Time end VR",
-            "Time start camp",
-            "Time end camp",
-            "Time start meditation",
-            "Time end meditation",
-        )
-        worksheet = openpyxl.load_workbook(timing_filepath).active
-
-        is_header_parsed = False
-        is_subject_found = False
-        is_date_found = False
-        are_data_found = False
-        columns_mapping = []
-        timings = [None] * len(desired_columns)
-        for row in worksheet.iter_rows():
-            for i_col, col in enumerate(row):
-                if not is_header_parsed:
-                    if col.value in desired_columns:
-                        columns_mapping.append(i_col)
-                    continue  # Go to next column
-
-                if not is_subject_found:  # This assumes ID is before Date
-                    if col.value != self.subject:
-                        break  # We know we are not on the right row
-                    is_subject_found = True
-                    continue  # Go to next column
-
-                if not is_date_found:  # This assumes Date is before the data
-                    if str(col.value.date()) != self.date:
-                        is_subject_found = False
-                        break  # We know we are not on the right row
-                    is_date_found = True
-                    continue  # Go to next column
-
-                # From now on, the data are sorted according to the desired_columns
-                if i_col not in columns_mapping:
-                    continue  # Go to next column
-                are_data_found = True
-                timings[columns_mapping.index(i_col)] = col.value
-            is_header_parsed = True
-            if are_data_found:
-                break  # We already found the timings so no need to parse next rows
-
-        return tuple(timings)
-
-    def _parse_timings_indices(self) -> tuple[tuple[int, int], tuple[int, int], tuple[int, int]]:
-        """Split the data into VR and camp"""
-
-        vr_starting_index = -1
-        vr_ending_index = -1
-        camp_starting_index = -1
-        camp_ending_index = -1
-        meditation_starting_index = -1
-        meditation_ending_index = -1
-        for i, daytime in enumerate(self.daytime_data):
-            # Reminder, self.timings is organised as such: Time start VR, Time end VR, Time start camp,
-            # Time end camp, Time start meditation, Time end meditation
-            daytime_time = daytime.time()
-            if vr_starting_index < 0 and self.timings[0] < daytime_time:
-                vr_starting_index = i
-            elif vr_ending_index < 0 and self.timings[1] < daytime_time:
-                vr_ending_index = i
-            elif camp_starting_index < 0 and self.timings[2] < daytime_time:
-                camp_starting_index = i
-            elif camp_ending_index < 0 and self.timings[3] < daytime_time:
-                camp_ending_index = i
-            elif meditation_starting_index < 0 and self.timings[4] < daytime_time:
-                meditation_starting_index = i
-            elif meditation_ending_index < 0 and self.timings[5] < daytime_time:
-                meditation_ending_index = i
-
-        if (
-            vr_starting_index < 0
-            or vr_ending_index < 0
-            or camp_starting_index < 0
-            or camp_ending_index < 0
-            or meditation_starting_index < 0
-            or meditation_ending_index < 0
-        ):
-            raise ValueError("The timings could not be read for the current subject and date")
-
-        return (
-            (vr_starting_index, vr_ending_index),
-            (camp_starting_index, camp_ending_index),
-            (meditation_starting_index, meditation_ending_index),
-        )

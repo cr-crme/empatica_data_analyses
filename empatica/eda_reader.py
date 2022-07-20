@@ -5,11 +5,11 @@ from matplotlib import pyplot as plt
 import numpy as np
 from pyEDA.main import process_statistical
 
-from .empatica_reader import EmpaticaReader
+from .empatica_vrcamp_reader import EmpaticaVrCampReader
 from .enums import ActivityType, TimeAxis
 
 
-class EdaReader(EmpaticaReader):
+class EdaReader(EmpaticaVrCampReader):
     def __init__(self, data_path: str, timing_path: str, reprocess_eda: bool = True):
         super(EdaReader, self).__init__(data_path=data_path, timing_path=timing_path, n_cols=1)
 
@@ -50,24 +50,24 @@ class EdaReader(EmpaticaReader):
     def _find_peaks(self):
         """Use pyEDA to find the peaks for each of the activity"""
         meditation = process_statistical(
-            self._data_meditation,
+            self.data(ActivityType.MEDITATION),
             use_scipy=True,
             sample_rate=self.rate,
             new_sample_rate=self.rate,
-            segment_width=self._data_meditation.shape[0],
+            segment_width=self.data(ActivityType.MEDITATION).shape[0],
         )
         camp = process_statistical(
-            self._data_camp,
+            self.data(ActivityType.Camp),
             use_scipy=True,
             sample_rate=self.rate,
             new_sample_rate=self.rate,
-            segment_width=self._data_camp.shape[0],
+            segment_width=self.data(ActivityType.Camp).shape[0],
         )
         vr = process_statistical(
-            self._data_vr,
+            self.data(ActivityType.VR),
             use_scipy=True,
             sample_rate=self.rate,
             new_sample_rate=self.rate,
-            segment_width=self._data_vr.shape[0],
+            segment_width=self.data(ActivityType.VR).shape[0],
         )
         return {ActivityType.MEDITATION: meditation, ActivityType.Camp: camp, ActivityType.VR: vr}
