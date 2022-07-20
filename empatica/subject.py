@@ -90,22 +90,33 @@ class Subject:
         """Get the number of files there is for this subject"""
         return len(self.dates)
 
-    def _parse_plot_labels(self, figure: plt.figure, to_plot: DataType, activity_type: ActivityType):
+    @staticmethod
+    def _check_and_dispatch_declaration(elements, element, name, expected_len):
+        if elements is None:
+            elements = [element] * expected_len
+        elif element is not None:
+            raise ValueError(f"{name}s and {name} cannot be simultaneously defined")
+
+        if len(elements) != expected_len:
+            raise ValueError(f"{name}s and {name} should be of dimension 1 or {expected_len}")
+        return elements
+
+    def _parse_plot_labels(self, figure: plt.figure, data_type: DataType, activity_type: ActivityType):
         """Determine the plot title function to the input data"""
-        if to_plot == DataType.ACC:
+        if data_type == DataType.ACC:
             title = "Acceleration"
-            ylabel = "Acceleration (m/s)"
-        elif to_plot == DataType.EDA:
+            y_label = "Acceleration (m/s)"
+        elif data_type == DataType.EDA:
             title = "Skin conductance"
-            ylabel = "Skin conductance (microS)"
-        elif to_plot == DataType.HR_BPM:
+            y_label = "Skin conductance (microS)"
+        elif data_type == DataType.HR_BPM:
             title = "Heart rate"
-            ylabel = "Heart rate (bpm)"
-        elif to_plot == DataType.HR_IBI:
+            y_label = "Heart rate (bpm)"
+        elif data_type == DataType.HR_IBI:
             title = "Interbeat interval"
-            ylabel = "Interbeat interval (ms)"
+            y_label = "Interbeat interval (ms)"
         else:
-            raise DataTypeNotImplementedError(to_plot)
+            raise DataTypeNotImplementedError(data_type)
 
         if figure is None:
             title += f" of subject {self.id_number}"
@@ -122,22 +133,11 @@ class Subject:
             else:
                 raise ActivityTypeNotImplementedError(activity_type)
 
-        return title, ylabel
-
-    @staticmethod
-    def _check_and_dispatch_declaration(elements, element, name, expected_len):
-        if elements is None:
-            elements = [element] * expected_len
-        elif element is not None:
-            raise ValueError(f"{name}s and {name} cannot be simultaneously defined")
-
-        if len(elements) != expected_len:
-            raise ValueError(f"{name}s and {name} should be of dimension 1 or {expected_len}")
-        return elements
+        return title, y_label
 
     def plot(
         self,
-        to_plot: DataType,
+        data_type: DataType,
         activity_types: tuple[ActivityType, ...] = None,
         activity_type: ActivityType = None,
         date_indices: tuple[int, ...] = None,
@@ -158,32 +158,32 @@ class Subject:
         title = ""
         y_label = ""
         for activity_type, color in zip(activity_types, colors):
-            title, y_label = self._parse_plot_labels(figure, to_plot, activity_type)
+            title, y_label = self._parse_plot_labels(figure, data_type, activity_type)
             figure = plt.figure(title) if figure is None else plt.figure(figure)
             figure.canvas.manager.set_window_title(title)
 
             ax = figure.gca()
             for i in date_indices:
-                if to_plot == DataType.ACC:
+                if data_type == DataType.ACC:
                     if not self.acc:
                         raise DataTypeNotLoadedError("Acceleration data were not loaded for this subject")
                     self.acc[i].add_to_plot(ax=ax, activity_type=activity_type, color=color, **options)
-                elif to_plot == DataType.EDA:
+                elif data_type == DataType.EDA:
                     if not self.eda:
                         raise DataTypeNotLoadedError("EDA data were not loaded for this subject")
                     ax = self.eda[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
                     if plot_eda_peaks:
                         self.eda[i].add_peaks_to_plot(ax=ax, activity_type=activity_type, **options)
-                elif to_plot == DataType.HR_BPM:
+                elif data_type == DataType.HR_BPM:
                     if not self.hr_bpm:
                         raise DataTypeNotLoadedError("HR (BPM) data were not loaded for this subject")
                     self.hr_bpm[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
-                elif to_plot == DataType.HR_IBI:
+                elif data_type == DataType.HR_IBI:
                     if not self.hr_ibi:
                         raise DataTypeNotLoadedError("HR (IBI) data were not loaded for this subject")
                     self.hr_ibi[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
                 else:
-                    raise DataTypeNotImplementedError(to_plot)
+                    raise DataTypeNotImplementedError(data_type)
 
         ax = figure.gca()
         ax.set_title(title)
