@@ -21,6 +21,7 @@ class Subject:
         data_path_folder: str,
         load_acc: bool = False,
         load_eda: bool = True,
+        eda_segment_width: int = None,
         load_hr_bpm: bool = True,
         load_hr_ibi: bool = True,
         fast_load: bool = False,
@@ -47,6 +48,7 @@ class Subject:
                     EdaReader(
                         data_path=self.data_path_folder + self.eda_filename(i),
                         timing_path=self.data_path_folder + "timings.xlsx",
+                        segment_width=eda_segment_width,
                         reprocess_eda=not fast_load,
                     )
                 )
@@ -147,7 +149,9 @@ class Subject:
     ) -> plt.figure:
         """Plot the requested data to a new figure"""
 
-        activity_types = self._check_and_dispatch_declaration(activity_types, activity_type, "activity_type", len(activity_types) if activity_types is not None else 1)
+        activity_types = self._check_and_dispatch_declaration(
+            activity_types, activity_type, "activity_type", len(activity_types) if activity_types is not None else 1
+        )
         colors = self._check_and_dispatch_declaration(colors, color, "color", len(activity_types))
 
         date_indices = range(self.n_dates) if date_indices is None else date_indices

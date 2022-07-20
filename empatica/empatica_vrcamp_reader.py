@@ -49,6 +49,18 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
         else:
             raise ActivityTypeNotImplementedError(activity_type)
 
+    @property
+    def longest_activity(self) -> ActivityType:
+        """Find the longest activity"""
+        current_length = -1
+        current_activity = ActivityType.All
+        for activity in (ActivityType.MEDITATION, ActivityType.Camp, ActivityType.MEDITATION):
+            t = self.t(activity)
+            if t[-1] - t[0] > current_length:
+                current_length = t[-1] - t[0]
+                current_activity = activity
+        return current_activity
+
     def _parse_timings(self, timing_filepath: str) -> tuple[datetime, ...]:
         """Get the timing data for VR and Camp, based on the data in the timing file"""
         desired_columns = (

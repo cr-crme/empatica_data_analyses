@@ -1,6 +1,6 @@
 import os
 
-from matplotlib import  pyplot as plt
+from matplotlib import pyplot as plt
 
 from .enums import DataType
 
