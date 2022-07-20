@@ -10,6 +10,7 @@ from .enums import (
 from .acc_reader import AccReader
 from .eda_reader import EdaReader
 from .hr_bpm_reader import HrBpmReader
+from .hr_ibi_reader import HrIbiReader
 
 
 class Subject:
@@ -21,6 +22,7 @@ class Subject:
         load_acc: bool = False,
         load_eda: bool = True,
         load_hr_bpm: bool = True,
+        load_hr_ibi: bool = True,
         fast_load: bool = False,
     ):
         self.id_number = id_number
@@ -30,6 +32,7 @@ class Subject:
         self.acc = []
         self.eda = []
         self.hr_bpm = []
+        self.hr_ibi = []
         for i in range(self.n_dates):
             if load_acc:
                 self.acc.append(
@@ -56,6 +59,14 @@ class Subject:
                     )
                 )
 
+            if load_hr_ibi:
+                self.hr_ibi.append(
+                    HrIbiReader(
+                        data_path=self.data_path_folder + self.hr_ibi_filename(i),
+                        timing_path=self.data_path_folder + "timings.xlsx",
+                    )
+                )
+
     def acc_filename(self, date_index):
         """Get the ACC file name associated to date_index"""
         return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.ACC.value}.csv"
@@ -67,6 +78,10 @@ class Subject:
     def hr_bpm_filename(self, date_index):
         """Get the HR file name associated to date_index"""
         return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.HR_BPM.value}.csv"
+
+    def hr_ibi_filename(self, date_index):
+        """Get the HR file name associated to date_index"""
+        return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.HR_IBI.value}.csv"
 
     @property
     def n_dates(self):
@@ -84,8 +99,11 @@ class Subject:
         elif to_plot == DataType.HR_BPM:
             title = "Heart rate"
             ylabel = "Heart rate (bpm)"
+        elif to_plot == DataType.HR_IBI:
+            title = "Interbeat interval"
+            ylabel = "Interbeat interval (ms)"
         else:
-            raise DataTypeNotImplementedError()
+            raise DataTypeNotImplementedError(to_plot)
 
         if figure is None:
             title += f" of subject {self.id_number}"
@@ -100,7 +118,7 @@ class Subject:
             elif activity_type == ActivityType.MEDITATION:
                 title += " during 'meditation'"
             else:
-                raise ActivityTypeNotImplementedError()
+                raise ActivityTypeNotImplementedError(activity_type)
 
         return title, ylabel
 
@@ -138,7 +156,11 @@ class Subject:
                 if not self.hr_bpm:
                     raise DataTypeNotLoadedError("HR (BPM) data were not loaded for this subject")
                 self.hr_bpm[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
+            elif to_plot == DataType.HR_IBI:
+                if not self.hr_ibi:
+                    raise DataTypeNotLoadedError("HR (IBI) data were not loaded for this subject")
+                self.hr_ibi[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
             else:
-                raise DataTypeNotImplementedError()
+                raise DataTypeNotImplementedError(to_plot)
 
         return figure

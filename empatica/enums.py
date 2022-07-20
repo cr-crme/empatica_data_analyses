@@ -4,12 +4,13 @@ from enum import Enum
 class DataType(Enum):
     ACC = "ACC"
     HR_BPM = "HR"
+    HR_IBI = "IBI"
     EDA = "EDA"
 
 
 class DataTypeNotImplementedError(NotImplementedError):
-    def __init__(self):
-        super(DataTypeNotImplementedError, self).__init__("This datatype is not implemented yet")
+    def __init__(self, data_type: DataType):
+        super(DataTypeNotImplementedError, self).__init__(f"This datatype ({data_type.value}) is not implemented yet")
 
 
 class DataTypeNotLoadedError(RuntimeError):
@@ -24,8 +25,10 @@ class ActivityType(Enum):
 
 
 class ActivityTypeNotImplementedError(NotImplementedError):
-    def __init__(self):
-        super(ActivityTypeNotImplementedError, self).__init__("This activity type is not implemented yet")
+    def __init__(self, activity_type: ActivityType):
+        super(ActivityTypeNotImplementedError, self).__init__(
+            f"This activity type ({activity_type.value}) is not implemented yet"
+        )
 
 
 class TimeAxis:

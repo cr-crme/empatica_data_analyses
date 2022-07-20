@@ -8,7 +8,7 @@ from .enums import ActivityType, ActivityTypeNotImplementedError
 
 
 class EmpaticaVrCampReader(EmpaticaReader, ABC):
-    def __init__(self, data_path: str, n_cols: int, timing_path: str = None):
+    def __init__(self, data_path: str, n_cols: int, timing_path: str):
         super(EmpaticaVrCampReader, self).__init__(data_path, n_cols)
         self.timings = self._parse_timings(timing_path)
         self.vr_index, self.camp_index, self.meditation_index = self._parse_timings_indices()
@@ -23,7 +23,7 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
         elif activity_type == ActivityType.MEDITATION:
             return self.t_data[self.meditation_index[0] : self.meditation_index[1]]
         else:
-            raise ActivityTypeNotImplementedError()
+            raise ActivityTypeNotImplementedError(activity_type)
 
     def daytime(self, activity_type: ActivityType = None):
         if activity_type is None:
@@ -35,7 +35,7 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
         elif activity_type == ActivityType.MEDITATION:
             return self.daytime_data[self.meditation_index[0] : self.meditation_index[1]]
         else:
-            raise ActivityTypeNotImplementedError()
+            raise ActivityTypeNotImplementedError(activity_type)
 
     def data(self, activity_type: ActivityType = None):
         if activity_type is None:
@@ -47,7 +47,7 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
         elif activity_type == ActivityType.MEDITATION:
             return self.actual_data[self.meditation_index[0] : self.meditation_index[1], :]
         else:
-            raise ActivityTypeNotImplementedError()
+            raise ActivityTypeNotImplementedError(activity_type)
 
     def _parse_timings(self, timing_filepath: str) -> tuple[datetime, ...]:
         """Get the timing data for VR and Camp, based on the data in the timing file"""
