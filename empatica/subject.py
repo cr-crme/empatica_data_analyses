@@ -9,6 +9,7 @@ from .enums import (
 )
 from .acc_reader import AccReader
 from .eda_reader import EdaReader
+from .empatica_reader import EmpaticaReader
 from .hr_bpm_reader import HrBpmReader
 from .hr_ibi_reader import HrIbiReader
 
@@ -84,6 +85,26 @@ class Subject:
     def hr_ibi_filename(self, date_index):
         """Get the HR file name associated to date_index"""
         return f"{self.id_number}_{self.dates[date_index]}_Empatica_{DataType.HR_IBI.value}.csv"
+
+    def data(self, data_type: DataType) -> list[EmpaticaReader, ...]:
+        if data_type == DataType.ACC:
+            if not self.acc:
+                raise DataTypeNotLoadedError("Acceleration data were not loaded for this subject")
+            return self.acc
+        elif data_type == DataType.EDA:
+            if not self.eda:
+                raise DataTypeNotLoadedError("EDA data were not loaded for this subject")
+            return self.eda
+        elif data_type == DataType.HR_BPM:
+            if not self.hr_bpm:
+                raise DataTypeNotLoadedError("HR (BPM) data were not loaded for this subject")
+            return self.hr_bpm
+        elif data_type == DataType.HR_IBI:
+            if not self.hr_ibi:
+                raise DataTypeNotLoadedError("HR (IBI) data were not loaded for this subject")
+            return self.hr_ibi
+        else:
+            raise DataTypeNotImplementedError(data_type)
 
     @property
     def n_dates(self):
@@ -163,30 +184,26 @@ class Subject:
             figure.canvas.manager.set_window_title(title)
 
             ax = figure.gca()
-            for i in date_indices:
-                if data_type == DataType.ACC:
-                    if not self.acc:
-                        raise DataTypeNotLoadedError("Acceleration data were not loaded for this subject")
-                    self.acc[i].add_to_plot(ax=ax, activity_type=activity_type, color=color, **options)
-                elif data_type == DataType.EDA:
-                    if not self.eda:
-                        raise DataTypeNotLoadedError("EDA data were not loaded for this subject")
-                    ax = self.eda[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
-                    if plot_eda_peaks:
-                        self.eda[i].add_peaks_to_plot(ax=ax, activity_type=activity_type, **options)
-                elif data_type == DataType.HR_BPM:
-                    if not self.hr_bpm:
-                        raise DataTypeNotLoadedError("HR (BPM) data were not loaded for this subject")
-                    self.hr_bpm[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
-                elif data_type == DataType.HR_IBI:
-                    if not self.hr_ibi:
-                        raise DataTypeNotLoadedError("HR (IBI) data were not loaded for this subject")
-                    self.hr_ibi[i].add_to_plot(ax=ax, activity_type=activity_type, **options)
-                else:
-                    raise DataTypeNotImplementedError(data_type)
+            for date in date_indices:
+                data = self.data(data_type)
+                ax = data[date].add_to_plot(ax=ax, activity_type=activity_type, color=color, **options)
+                if data_type == DataType.EDA and plot_eda_peaks:
+                    self.eda[date].add_peaks_to_plot(ax=ax, activity_type=activity_type, **options)
 
         ax = figure.gca()
         ax.set_title(title)
         ax.set_ylabel(y_label)
         ax.set_xlabel("Time (hour)")
         return figure
+
+    def print_table(
+        self,
+        data_type: DataType,
+        date_indices: tuple[int, ...] = None,
+    ) -> None:
+        """Print relevant tables for the requested DataType and dates"""
+        data = self.data(data_type)
+        date_indices = range(self.n_dates) if date_indices is None else date_indices
+
+        for date in date_indices:
+            data[date].print_table()

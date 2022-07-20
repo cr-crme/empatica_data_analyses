@@ -1,4 +1,5 @@
 from .empatica_vrcamp_reader import EmpaticaVrCampReader
+from .enums import ActivityType
 
 
 class HrIbiReader(EmpaticaVrCampReader):
@@ -16,3 +17,6 @@ class HrIbiReader(EmpaticaVrCampReader):
 
     def _next_data(self, row) -> list[float]:
         return [super(HrIbiReader, self)._next_data(row)[1]]
+
+    def print_table(self, activity_type: ActivityType = ActivityType.All, **options) -> None:
+        raise NotImplementedError("No table was implemented for HrIbiReader data")

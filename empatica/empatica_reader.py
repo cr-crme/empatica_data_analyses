@@ -57,6 +57,10 @@ class EmpaticaReader(ABC):
         ax.plot(t, data, label=label, **options)
         return ax
 
+    @abstractmethod
+    def print_table(self, activity_type: ActivityType = ActivityType.All, **options) -> None:
+        """Print the relevant information as a table"""
+
     @property
     def _has_initial_time_stamp(self) -> bool:
         """Returns if the csv file contains an initial time stamp value"""

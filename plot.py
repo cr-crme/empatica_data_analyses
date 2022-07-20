@@ -3,7 +3,7 @@ from empatica import ActivityType, DataType, Subject, PlotUtils
 
 segment_width = None
 fast_load = True
-show_eda_fig = False
+show_eda_fig = True
 show_eda_table = True
 show_hr_bpm_fig = False
 show_hr_ibi_fig = False
@@ -90,37 +90,44 @@ subjects = [
 
 
 def main():
-    fig_eda = None
-    fig_hr_bpm = None
-    fig_hr_ibi = None
-    for subject in subjects:
-        if show_eda_fig:
-            fig_eda = subject.plot(
+    if show_eda_table:
+        for subject in subjects:
+            subject.print_table(
                 data_type=DataType.EDA,
-                activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
-                figure=fig_eda,
                 date_indices=date_indices,
-                colors=("g", "b", "r"),
-                plot_eda_peaks=True,
-            )
-        if show_hr_bpm_fig:
-            fig_hr_bpm = subject.plot(
-                data_type=DataType.HR_BPM,
-                activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
-                figure=fig_hr_bpm,
-                date_indices=date_indices,
-                colors=("g", "b", "r"),
-            )
-        if show_hr_ibi_fig:
-            fig_hr_ibi = subject.plot(
-                data_type=DataType.HR_IBI,
-                activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
-                figure=fig_hr_ibi,
-                date_indices=date_indices,
-                colors=("g", "b", "r"),
             )
 
     if show_eda_fig or show_hr_bpm_fig or show_hr_ibi_fig:
+        fig_eda = None
+        fig_hr_bpm = None
+        fig_hr_ibi = None
+        for subject in subjects:
+            if show_eda_fig:
+                fig_eda = subject.plot(
+                    data_type=DataType.EDA,
+                    activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
+                    figure=fig_eda,
+                    date_indices=date_indices,
+                    colors=("g", "b", "r"),
+                    plot_eda_peaks=True,
+                )
+            if show_hr_bpm_fig:
+                fig_hr_bpm = subject.plot(
+                    data_type=DataType.HR_BPM,
+                    activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
+                    figure=fig_hr_bpm,
+                    date_indices=date_indices,
+                    colors=("g", "b", "r"),
+                )
+            if show_hr_ibi_fig:
+                fig_hr_ibi = subject.plot(
+                    data_type=DataType.HR_IBI,
+                    activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
+                    figure=fig_hr_ibi,
+                    date_indices=date_indices,
+                    colors=("g", "b", "r"),
+                )
+
         if should_savefig:
             PlotUtils.savefig(path_folder="results", fig=fig_eda, data_type=DataType.EDA, postfix="subject01")
             PlotUtils.savefig(path_folder="results", fig=fig_hr_bpm, data_type=DataType.HR_BPM, postfix="subject01")

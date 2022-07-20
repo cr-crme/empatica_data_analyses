@@ -119,3 +119,6 @@ class EdaReader(EmpaticaVrCampReader):
             segment_width=self.segment_width,
         )
         return {ActivityType.MEDITATION: meditation, ActivityType.Camp: camp, ActivityType.VR: vr}
+
+    def print_table(self, activity_type: ActivityType = ActivityType.All, **options) -> None:
+        print("coucou")
