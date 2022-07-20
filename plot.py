@@ -1,7 +1,5 @@
-import os
+from empatica import ActivityType, DataType, Subject, PlotUtils
 
-from matplotlib import pyplot as plt
-from empatica import ActivityType, DataType, Subject
 
 data_path_folder = (
     "C:\\Users\\pariterre\\Nextcloud\\Documents\\Technopole\\Projets\\DanielleLevac\\Empatica data\\Data\\"
@@ -14,18 +12,11 @@ subjects = [
     Subject("05", ["2022-06-27", "2022-07-01"], data_path_folder, fast_load=True),
     Subject("06", ["2022-06-30", "2022-07-04"], data_path_folder, fast_load=True),
 ]
-# subjects = [
-#     Subject("01", ["2022-06-28"], data_path_folder, fast_load=True),
-# ]
+subjects = [
+    Subject("01", ["2022-06-28"], data_path_folder, fast_load=True),
+]
 date_indices = None  # (0,)
-
-
-def savefig(path_folder: str, fig: plt.figure, data_type: DataType, postfix: str):
-    fig.legend()
-    fig.set_size_inches(16, 9)
-    if not os.path.isdir(path_folder):
-        os.mkdir(path_folder)
-    fig.savefig(f"{path_folder}/{data_type.value}_{postfix}.png", dpi=300)
+should_savefig = False
 
 
 def main():
@@ -35,63 +26,36 @@ def main():
     for subject in subjects:
         fig_eda = subject.plot(
             to_plot=DataType.EDA,
-            activity_type=ActivityType.MEDITATION,
+            activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
             figure=fig_eda,
             date_indices=date_indices,
-            color="g",
-            plot_eda_peaks=False,
-        )
-        fig_eda = subject.plot(
-            to_plot=DataType.EDA,
-            activity_type=ActivityType.Camp,
-            figure=fig_eda,
-            date_indices=date_indices,
-            color="b",
-            plot_eda_peaks=False,
-        )
-        fig_eda = subject.plot(
-            to_plot=DataType.EDA,
-            activity_type=ActivityType.VR,
-            figure=fig_eda,
-            date_indices=date_indices,
-            color="r",
+            colors=("g", "b", "r"),
             plot_eda_peaks=False,
         )
         fig_hr_bpm = subject.plot(
             DataType.HR_BPM,
-            activity_type=ActivityType.MEDITATION,
+            activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
             figure=fig_hr_bpm,
             date_indices=date_indices,
-            color="g",
-        )
-        fig_hr_bpm = subject.plot(
-            DataType.HR_BPM, activity_type=ActivityType.Camp, figure=fig_hr_bpm, date_indices=date_indices, color="b"
-        )
-        fig_hr_bpm = subject.plot(
-            DataType.HR_BPM, activity_type=ActivityType.VR, figure=fig_hr_bpm, date_indices=date_indices, color="r"
+            colors=("g", "b", "r"),
         )
         fig_hr_ibi = subject.plot(
             DataType.HR_IBI,
-            activity_type=ActivityType.MEDITATION,
+            activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
             figure=fig_hr_ibi,
             date_indices=date_indices,
-            color="g",
-        )
-        fig_hr_ibi = subject.plot(
-            DataType.HR_IBI, activity_type=ActivityType.Camp, figure=fig_hr_ibi, date_indices=date_indices, color="b"
-        )
-        fig_hr_ibi = subject.plot(
-            DataType.HR_IBI, activity_type=ActivityType.VR, figure=fig_hr_ibi, date_indices=date_indices, color="r"
+            colors=("g", "b", "r"),
         )
 
-    # savefig(path_folder="results", fig=fig_eda, data_type=DataType.EDA, postfix='subject06')
-    # savefig(path_folder="results", fig=fig_hr_bpm, data_type=DataType.HR_BPM, postfix='subject06')
-    # savefig(path_folder="results", fig=fig_hr_ibi, data_type=DataType.HR_IBI, postfix='subject06')
+    if should_savefig:
+        PlotUtils.savefig(path_folder="results", fig=fig_eda, data_type=DataType.EDA, postfix='subject06')
+        PlotUtils.savefig(path_folder="results", fig=fig_hr_bpm, data_type=DataType.HR_BPM, postfix='subject06')
+        PlotUtils.savefig(path_folder="results", fig=fig_hr_ibi, data_type=DataType.HR_IBI, postfix='subject06')
 
-    fig_eda.legend()
-    fig_hr_bpm.legend()
-    fig_hr_ibi.legend()
-    plt.show()
+    PlotUtils.add_legend(fig_eda)
+    PlotUtils.add_legend(fig_hr_bpm)
+    PlotUtils.add_legend(fig_hr_ibi)
+    PlotUtils.show()
 
 
 if __name__ == "__main__":

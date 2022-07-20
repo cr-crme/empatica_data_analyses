@@ -1,5 +1,4 @@
 from .empatica_vrcamp_reader import EmpaticaVrCampReader
-from .enums import ActivityType
 
 
 class HrIbiReader(EmpaticaVrCampReader):
