@@ -57,9 +57,46 @@ class EmpaticaReader(ABC):
         ax.plot(t, data, label=label, **options)
         return ax
 
+    @staticmethod
+    def print_document_header():
+        print(r"\documentclass{article}")
+        print(r"\usepackage[utf8]{inputenc}")
+        print(r"\usepackage{makecell}")
+        print(r"\usepackage{siunitx}")
+        print("")
+        print(r"\begin{document}")
+
+    @staticmethod
+    def print_document_tail():
+        print(r"\end{document}")
+
+    def print_table_header(self):
+        """Prepare a LaTeX table with tabular{columns}"""
+        print(r" \begin{table}[h]")
+        print(r"  \centering")
+        print(r"  \begin{tabular}{" + self._table_columns() + r"}")
+        self._print_table_header()
+        print(r"   \hline")
+
+    @abstractmethod
+    def _table_columns(self) -> str:
+        """Get the columns of a LaTeX table"""
+
+    @abstractmethod
+    def _print_table_header(self) -> None:
+        """Print the actual header"""
+
     @abstractmethod
     def print_table(self, activity_type: ActivityType = ActivityType.All, **options) -> None:
-        """Print the relevant information as a table"""
+        """Print the relevant information as a LaTeX table"""
+
+    @staticmethod
+    def print_table_tail(caption):
+        """Prepare the tail of a LaTeX table"""
+        print(r"   \hline")
+        print(r"  \end{tabular}")
+        print(r"  \caption{" + caption + r"}")
+        print(r" \end{table}")
 
     @property
     def _has_initial_time_stamp(self) -> bool:

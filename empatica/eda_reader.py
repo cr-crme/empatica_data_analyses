@@ -120,5 +120,22 @@ class EdaReader(EmpaticaVrCampReader):
         )
         return {ActivityType.MEDITATION: meditation, ActivityType.Camp: camp, ActivityType.VR: vr}
 
+    def _table_columns(self) -> str:
+        return "r|cccc"
+
+    def _print_table_header(self) -> None:
+        print(
+            r"   Type of activity & \makecell{Mean number\\of peaks} & \makecell{Mean segment\\time (s)} & "
+            r"\makecell{Number of peaks\\per second ($s^{-1}$)} & \makecell{Mean max\\peak value (\SI{}{\micro\siemens})} \\"
+        )
+
     def print_table(self, activity_type: ActivityType = ActivityType.All, **options) -> None:
-        print("coucou")
+        data = self.pyeda_peaks[activity_type]
+        n_peaks = np.mean(data[0]["number_of_peaks"])
+        total_time = np.mean([v[1] - v[0] for v in data[1]["segment_indices"]])
+        peak_per_second = n_peaks / total_time
+        max_peak_value = np.mean(data[0]["max_of_peaks"])
+
+        print(
+            rf"   {activity_type.value} & {n_peaks:0.1f} & {total_time:0.1f} & {peak_per_second:0.4f} & {max_peak_value:0.6f} \\"
+        )

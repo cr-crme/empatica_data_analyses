@@ -1,9 +1,9 @@
-from empatica import ActivityType, DataType, Subject, PlotUtils
+from empatica import ActivityType, DataType, Subject, PlotUtils, TableUtils
 
 
 segment_width = None
 fast_load = True
-show_eda_fig = True
+show_eda_fig = False
 show_eda_table = True
 show_hr_bpm_fig = False
 show_hr_ibi_fig = False
@@ -91,11 +91,15 @@ subjects = [
 
 def main():
     if show_eda_table:
+        TableUtils.print_document_header()
         for subject in subjects:
             subject.print_table(
                 data_type=DataType.EDA,
+                activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
                 date_indices=date_indices,
             )
+        print("")
+        TableUtils.print_document_tail()
 
     if show_eda_fig or show_hr_bpm_fig or show_hr_ibi_fig:
         fig_eda = None

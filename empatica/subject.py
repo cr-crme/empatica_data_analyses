@@ -199,11 +199,20 @@ class Subject:
     def print_table(
         self,
         data_type: DataType,
+        activity_types: tuple[ActivityType, ...] = None,
+        activity_type: ActivityType = None,
         date_indices: tuple[int, ...] = None,
     ) -> None:
         """Print relevant tables for the requested DataType and dates"""
+
         data = self.data(data_type)
         date_indices = range(self.n_dates) if date_indices is None else date_indices
+        activity_types = self._check_and_dispatch_declaration(
+            activity_types, activity_type, "activity_type", len(activity_types) if activity_types is not None else 1
+        )
 
         for date in date_indices:
-            data[date].print_table()
+            data[date].print_table_header()
+            for activity_type in activity_types:
+                data[date].print_table(activity_type)
+            data[date].print_table_tail(f"Table for subject {self.id_number}")
