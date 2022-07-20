@@ -4,14 +4,14 @@ from empatica import ActivityType, DataType, Subject, PlotUtils
 data_path_folder = (
     "C:\\Users\\pariterre\\Nextcloud\\Documents\\Technopole\\Projets\\DanielleLevac\\Empatica data\\Data\\"
 )
-subjects = [
-    Subject("01", ["2022-06-28", "2022-06-30", "2022-07-06", "2022-07-08"], data_path_folder, fast_load=True),
-    Subject("02", ["2022-07-04", "2022-07-05", "2022-07-06"], data_path_folder, fast_load=True),
-    Subject("03", ["2022-06-27", "2022-06-29", "2022-07-05", "2022-07-07"], data_path_folder, fast_load=True),
-    Subject("04", ["2022-06-29", "2022-07-07", "2022-07-08"], data_path_folder, fast_load=True),
-    Subject("05", ["2022-06-27", "2022-07-01"], data_path_folder, fast_load=True),
-    Subject("06", ["2022-06-30", "2022-07-04"], data_path_folder, fast_load=True),
-]
+# subjects = [
+#     Subject("01", ["2022-06-28", "2022-06-30", "2022-07-06", "2022-07-08"], data_path_folder, fast_load=True),
+#     Subject("02", ["2022-07-04", "2022-07-05", "2022-07-06"], data_path_folder, fast_load=True),
+#     Subject("03", ["2022-06-27", "2022-06-29", "2022-07-05", "2022-07-07"], data_path_folder, fast_load=True),
+#     Subject("04", ["2022-06-29", "2022-07-07", "2022-07-08"], data_path_folder, fast_load=True),
+#     Subject("05", ["2022-06-27", "2022-07-01"], data_path_folder, fast_load=True),
+#     Subject("06", ["2022-06-30", "2022-07-04"], data_path_folder, fast_load=True),
+# ]
 subjects = [
     Subject("01", ["2022-06-28"], data_path_folder, fast_load=True),
 ]
@@ -30,7 +30,7 @@ def main():
             figure=fig_eda,
             date_indices=date_indices,
             colors=("g", "b", "r"),
-            plot_eda_peaks=False,
+            plot_eda_peaks=True,
         )
         fig_hr_bpm = subject.plot(
             DataType.HR_BPM,
