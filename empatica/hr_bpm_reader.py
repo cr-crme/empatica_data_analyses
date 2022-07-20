@@ -6,4 +6,4 @@ class HrBpmReader(EmpaticaReader):
         super(HrBpmReader, self).__init__(data_path=data_path, timing_path=timing_path, n_cols=1)
 
     def extra_labels(self) -> tuple[str, ...]:
-        return "hr bpm",
+        return ("hr bpm",)

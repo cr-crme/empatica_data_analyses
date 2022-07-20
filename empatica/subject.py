@@ -1,13 +1,28 @@
 from matplotlib import pyplot as plt
 
-from .enums import DataType, DataTypeNotLoadedError, DataTypeNotImplementedError, ActivityType, ActivityTypeNotImplementedError
+from .enums import (
+    DataType,
+    DataTypeNotLoadedError,
+    DataTypeNotImplementedError,
+    ActivityType,
+    ActivityTypeNotImplementedError,
+)
 from .acc_reader import AccReader
 from .eda_reader import EdaReader
 from .hr_bpm_reader import HrBpmReader
 
 
 class Subject:
-    def __init__(self, id_number: str, dates: list[str], data_path_folder: str, load_acc: bool = False, load_eda: bool = True, load_hr_bpm: bool = True, fast_load: bool = False):
+    def __init__(
+        self,
+        id_number: str,
+        dates: list[str],
+        data_path_folder: str,
+        load_acc: bool = False,
+        load_eda: bool = True,
+        load_hr_bpm: bool = True,
+        fast_load: bool = False,
+    ):
         self.id_number = id_number
         self.dates = dates
         self.data_path_folder = data_path_folder

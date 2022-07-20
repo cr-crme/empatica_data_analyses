@@ -25,11 +25,11 @@ def _parse_name_and_date(path: str) -> tuple[str, str]:
 
 
 class EmpaticaReader(ABC):
-    def __init__(self, data_path: str, timing_path: str, n_cols: int):
+    def __init__(self, data_path: str, timing_path: str, n_cols: int, rate: int = None):
         self.path = data_path
         self.subject, self.date = _parse_name_and_date(self.path)
         self.initial_t: int | None = None
-        self.rate: int | None = None
+        self.rate: int | None = rate
         self.n_cols = n_cols
 
         self.t_data, self.daytime_data, self.data = self._read_csv_data()
@@ -42,7 +42,7 @@ class EmpaticaReader(ABC):
         elif activity_type == ActivityType.VR:
             return self._t_data_vr
         elif activity_type == ActivityType.MEDITATION:
-            return  self._t_data_meditation
+            return self._t_data_meditation
         else:
             raise ActivityTypeNotImplementedError()
 
@@ -167,7 +167,14 @@ class EmpaticaReader(ABC):
 
     def _parse_timings(self, timing_filepath: str) -> tuple[datetime, ...]:
         """Get the timing data for VR and Camp, based on the data in the timing file"""
-        desired_columns = ("Time start VR", "Time end VR", "Time start camp", "Time end camp", "Time start meditation", "Time end meditation")
+        desired_columns = (
+            "Time start VR",
+            "Time end VR",
+            "Time start camp",
+            "Time end camp",
+            "Time start meditation",
+            "Time end meditation",
+        )
         worksheet = openpyxl.load_workbook(timing_filepath).active
 
         is_header_parsed = False
@@ -233,7 +240,18 @@ class EmpaticaReader(ABC):
             elif meditation_ending_index < 0 and self.timings[5] < daytime_time:
                 meditation_ending_index = i
 
-        if vr_starting_index < 0 or vr_ending_index < 0 or camp_starting_index < 0 or camp_ending_index < 0 or meditation_starting_index < 0 or meditation_ending_index < 0:
+        if (
+            vr_starting_index < 0
+            or vr_ending_index < 0
+            or camp_starting_index < 0
+            or camp_ending_index < 0
+            or meditation_starting_index < 0
+            or meditation_ending_index < 0
+        ):
             raise ValueError("The timings could not be read for the current subject and date")
 
-        return (vr_starting_index, vr_ending_index), (camp_starting_index, camp_ending_index), (meditation_starting_index, meditation_ending_index)
+        return (
+            (vr_starting_index, vr_ending_index),
+            (camp_starting_index, camp_ending_index),
+            (meditation_starting_index, meditation_ending_index),
+        )

@@ -29,16 +29,35 @@ def main():
     fig_hr_bpm = None
     for subject in subjects:
         fig_eda = subject.plot(
-            to_plot=DataType.EDA, activity_type=ActivityType.MEDITATION, figure=fig_eda, date_indices=date_indices, color="g", plot_eda_peaks=False
+            to_plot=DataType.EDA,
+            activity_type=ActivityType.MEDITATION,
+            figure=fig_eda,
+            date_indices=date_indices,
+            color="g",
+            plot_eda_peaks=False,
         )
         fig_eda = subject.plot(
-            to_plot=DataType.EDA, activity_type=ActivityType.Camp, figure=fig_eda, date_indices=date_indices, color="b", plot_eda_peaks=False
+            to_plot=DataType.EDA,
+            activity_type=ActivityType.Camp,
+            figure=fig_eda,
+            date_indices=date_indices,
+            color="b",
+            plot_eda_peaks=False,
         )
         fig_eda = subject.plot(
-            to_plot=DataType.EDA, activity_type=ActivityType.VR, figure=fig_eda, date_indices=date_indices, color="r", plot_eda_peaks=False
+            to_plot=DataType.EDA,
+            activity_type=ActivityType.VR,
+            figure=fig_eda,
+            date_indices=date_indices,
+            color="r",
+            plot_eda_peaks=False,
         )
         fig_hr_bpm = subject.plot(
-            DataType.HR_BPM, activity_type=ActivityType.MEDITATION, figure=fig_hr_bpm, date_indices=date_indices, color="g"
+            DataType.HR_BPM,
+            activity_type=ActivityType.MEDITATION,
+            figure=fig_hr_bpm,
+            date_indices=date_indices,
+            color="g",
         )
         fig_hr_bpm = subject.plot(
             DataType.HR_BPM, activity_type=ActivityType.Camp, figure=fig_hr_bpm, date_indices=date_indices, color="b"
