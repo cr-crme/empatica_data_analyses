@@ -122,7 +122,7 @@ class Subject:
             raise ValueError(f"{name}s and {name} should be of dimension 1 or {expected_len}")
         return elements
 
-    def _parse_plot_labels(self, figure: plt.figure, data_type: DataType, activity_type: ActivityType):
+    def _parse_plot_labels(self, figure: plt.figure, data_type: DataType, activity_type: ActivityType, has_other_subject: bool):
         """Determine the plot title function to the input data"""
         if data_type == DataType.ACC:
             title = "Acceleration"
@@ -139,7 +139,7 @@ class Subject:
         else:
             raise DataTypeNotImplementedError(data_type)
 
-        if figure is None:
+        if not has_other_subject:
             title += f" of subject {self.id_number}"
 
         if figure is None:
@@ -174,12 +174,13 @@ class Subject:
             activity_types, activity_type, "activity_type", len(activity_types) if activity_types is not None else 1
         )
         colors = self.check_and_dispatch_declaration(colors, color, "color", len(activity_types))
+        has_other_subject = figure is not None
 
         date_indices = range(self.n_dates) if date_indices is None else date_indices
         title = ""
         y_label = ""
         for activity_type, color in zip(activity_types, colors):
-            title, y_label = self._parse_plot_labels(figure, data_type, activity_type)
+            title, y_label = self._parse_plot_labels(figure, data_type, activity_type, has_other_subject)
             figure = plt.figure(title) if figure is None else plt.figure(figure)
             figure.canvas.manager.set_window_title(title)
 
@@ -194,6 +195,48 @@ class Subject:
         ax.set_title(title)
         ax.set_ylabel(y_label)
         ax.set_xlabel("Time (hour)")
+
+        return figure
+
+    def plot_eda_figures(
+        self,
+        activity_types: tuple[ActivityType, ...] = None,
+        activity_type: ActivityType = None,
+        figure: plt.figure = None,
+        date_indices: tuple[int, ...] = None,
+        colors: tuple[str, ...] = None,
+        color: str = None,
+        x_axis: tuple[str, ...] = None,
+        y_lim: tuple[float, float] = None,
+        **options,
+    ):
+        activity_types = self.check_and_dispatch_declaration(
+            activity_types, activity_type, "activity_type", len(activity_types) if activity_types is not None else 1
+        )
+        colors = self.check_and_dispatch_declaration(colors, color, "color", len(activity_types))
+        date_indices = range(self.n_dates) if date_indices is None else date_indices
+        has_other_subject = figure is not None
+
+        title = ""
+        y_label = ""
+        for activity_type, color in zip(activity_types, colors):
+            title, _ = self._parse_plot_labels(figure, DataType.EDA, activity_type, has_other_subject)
+            title = title.replace("Skin conductance", "Peaks per minute per day")
+            y_label = "Peaks per minute"
+            figure = plt.figure(title) if figure is None else plt.figure(figure)
+            figure.canvas.manager.set_window_title(title)
+            ax = figure.gca()
+            if x_axis:
+                ax.plot(x_axis, [0] * len(x_axis), "w")
+
+            peaks_per_minute = [self.eda[date].peak_per_second(activity_type) * 60 for date in date_indices]
+            ax.plot([self.dates[d] for d in date_indices], peaks_per_minute, "-o", label=activity_type if not has_other_subject else None, color=color, **options)
+
+        ax = figure.gca()
+        ax.set_title(title)
+        ax.set_ylabel(y_label)
+        ax.set_ylim(y_lim)
+        ax.set_xlabel("Dates")
         return figure
 
     def print_table(

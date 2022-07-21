@@ -136,24 +136,38 @@ class EdaReader(EmpaticaVrCampReader):
 
     def _print_table_header(self) -> None:
         print(
-            r"   Type of activity & \makecell{Mean number\\of peaks} & \makecell{Mean segment\\time (\SI{}{\second})} "
+            r"   Type of activity & \makecell{Mean number\\of peaks} & \makecell{Mean segment\\time (\SI{}{\minute})} "
             r"& \makecell{Number of peaks\\per minute (\SI{}{1\per\minute})} "
             r"& \makecell{Mean max\\peak value (\SI{}{\micro\siemens})} \\"
         )
 
+    def n_peaks(self, activity_type: ActivityType) -> float:
+        """Number of peaks in an activity"""
+        return float(np.mean(self.pyeda_peaks[activity_type][0]["number_of_peaks"]))
+
+    def activity_time(self, activity_type: ActivityType) -> float:
+        """Time of the activity in second"""
+        return float(np.mean([v[1] - v[0] for v in self.pyeda_peaks[activity_type][1]["segment_indices"]]))
+
+    def peak_per_second(self, activity_type: ActivityType) -> float:
+        """Number of peak per second during the activity"""
+        return self.n_peaks(activity_type) / self.activity_time(activity_type)
+
+    def maximum_peak_value(self, activity_type: ActivityType) -> float:
+        return float(np.mean(self.pyeda_peaks[activity_type][0]["max_of_peaks"]))
+
     def get_table_value(self, activity_type: ActivityType = ActivityType.All, **options) -> tuple:
-        data = self.pyeda_peaks[activity_type]
-        n_peaks = np.mean(data[0]["number_of_peaks"])
-        total_time = np.mean([v[1] - v[0] for v in data[1]["segment_indices"]])
-        peak_per_second = n_peaks / total_time * 60
-        max_peak_value = np.mean(data[0]["max_of_peaks"])
-        return n_peaks, total_time, peak_per_second, max_peak_value
+        n_peaks = self.n_peaks(activity_type)
+        total_time = self.activity_time(activity_type) / 60
+        peak_per_minute = self.peak_per_second(activity_type) * 60
+        max_peak_value = self.maximum_peak_value(activity_type)
+        return n_peaks, total_time, peak_per_minute, max_peak_value
 
     def print_table(self, activity_type: ActivityType = ActivityType.All, values: tuple = None, **options) -> None:
         if values is None:
-            n_peaks, total_time, peak_per_second, max_peak_value = self.get_table_value(activity_type, **options)
+            n_peaks, total_time, peak_per_minute, max_peak_value = self.get_table_value(activity_type, **options)
         else:
-            n_peaks, total_time, peak_per_second, max_peak_value = values
+            n_peaks, total_time, peak_per_minute, max_peak_value = values
         print(
-            rf"   {activity_type.value} & {n_peaks:0.1f} & {total_time:0.1f} & {peak_per_second:0.4f} & {max_peak_value:0.6f} \\"
+            rf"   {activity_type.value} & {n_peaks:0.1f} & {total_time:0.1f} & {peak_per_minute:0.4f} & {max_peak_value:0.6f} \\"
         )

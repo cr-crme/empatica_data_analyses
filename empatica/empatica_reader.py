@@ -72,7 +72,7 @@ class EmpaticaReader(ABC):
 
     def print_table_header(self):
         """Prepare a LaTeX table with tabular{columns}"""
-        print(r" \begin{table}[h]")
+        print(r" \begin{table}[!h]")
         print(r"  \centering")
         print(r"  \begin{tabular}{" + self._table_columns() + r"}")
         self._print_table_header()

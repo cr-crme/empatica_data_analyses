@@ -23,7 +23,7 @@ class TableUtils:
         if not os.path.isdir(path_folder):
             os.mkdir(path_folder)
 
-        f = open(f"{path_folder}/table.tex", 'w')
+        f = open(f"{path_folder}/tables.tex", 'w')
         sys.stdout = f
         return f, orig_stdout
 

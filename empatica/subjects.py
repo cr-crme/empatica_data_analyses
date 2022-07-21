@@ -1,3 +1,5 @@
+import datetime
+
 import numpy as np
 
 from .enums import DataType, ActivityType
@@ -37,6 +39,25 @@ class Subjects:
 
     def __iter__(self):
         return (s for s in self.subjects)
+
+    def __len__(self):
+        return len(self.subjects)
+
+    def generate_date_axis_label(self) -> tuple[str, ...]:
+        """Generate the x axis for all the dates"""
+        init = None
+        end = None
+        for subject in self.subjects:
+            for date in subject.dates:
+                current = datetime.datetime.strptime(date, "%Y-%m-%d")
+                if init is None or current < init:
+                    init = current
+                if end is None or current > end:
+                    end = current
+        labels = []
+        for day in range((end - init + datetime.timedelta(days=1)).days):
+            labels.append(str((init + datetime.timedelta(days=day)).date()))
+        return tuple(labels)
 
     def print_table(
             self,
