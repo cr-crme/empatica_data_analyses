@@ -12,6 +12,9 @@ class HrBpmReader(EmpaticaVrCampReader):
     def _table_columns(self) -> str:
         raise NotImplementedError("No table was implemented for HrBpmReader data")
 
+    def get_table_value(self, activity_type: ActivityType = ActivityType.All, **options) -> tuple:
+        raise NotImplementedError("No table was implemented for HrBpmReader data")
+
     def _print_table_header(self) -> None:
         raise NotImplementedError("No table was implemented for HrBpmReader data")
 

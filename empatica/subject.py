@@ -112,7 +112,7 @@ class Subject:
         return len(self.dates)
 
     @staticmethod
-    def _check_and_dispatch_declaration(elements, element, name, expected_len):
+    def check_and_dispatch_declaration(elements, element, name, expected_len):
         if elements is None:
             elements = [element] * expected_len
         elif element is not None:
@@ -149,8 +149,8 @@ class Subject:
                 title += " for 'Camp' activity"
             elif activity_type == ActivityType.VR:
                 title += " for 'VR' activity"
-            elif activity_type == ActivityType.MEDITATION:
-                title += " during 'meditation'"
+            elif activity_type == ActivityType.BASELINE:
+                title += " during 'baseline'"
             else:
                 raise ActivityTypeNotImplementedError(activity_type)
 
@@ -170,10 +170,10 @@ class Subject:
     ) -> plt.figure:
         """Plot the requested data to a new figure"""
 
-        activity_types = self._check_and_dispatch_declaration(
+        activity_types = self.check_and_dispatch_declaration(
             activity_types, activity_type, "activity_type", len(activity_types) if activity_types is not None else 1
         )
-        colors = self._check_and_dispatch_declaration(colors, color, "color", len(activity_types))
+        colors = self.check_and_dispatch_declaration(colors, color, "color", len(activity_types))
 
         date_indices = range(self.n_dates) if date_indices is None else date_indices
         title = ""
@@ -207,7 +207,7 @@ class Subject:
 
         data = self.data(data_type)
         date_indices = range(self.n_dates) if date_indices is None else date_indices
-        activity_types = self._check_and_dispatch_declaration(
+        activity_types = self.check_and_dispatch_declaration(
             activity_types, activity_type, "activity_type", len(activity_types) if activity_types is not None else 1
         )
 
@@ -215,4 +215,4 @@ class Subject:
             data[date].print_table_header()
             for activity_type in activity_types:
                 data[date].print_table(activity_type)
-            data[date].print_table_tail(f"Table for subject {self.id_number}")
+            data[date].print_table_tail(f"Table for subject {self.id_number} on date {self.dates[date]}")

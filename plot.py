@@ -1,8 +1,12 @@
-from empatica import ActivityType, DataType, Subject, PlotUtils, TableUtils
+from empatica import ActivityType, DataType, Subjects, PlotUtils, TableUtils
 
 
-segment_width = None
+data_path_folder = (
+    "C:\\Users\\pariterre\\Nextcloud\\Documents\\Technopole\\Projets\\DanielleLevac\\Empatica data\\Data\\"
+)
+
 fast_load = True
+eda_segment_width = None
 show_eda_fig = False
 show_eda_table = True
 show_hr_bpm_fig = False
@@ -10,96 +14,40 @@ show_hr_ibi_fig = False
 should_savefig = False
 date_indices = None  # (0,)
 
-data_path_folder = (
-    "C:\\Users\\pariterre\\Nextcloud\\Documents\\Technopole\\Projets\\DanielleLevac\\Empatica data\\Data\\"
-)
-# subjects = [
-#     Subject(
-#         "01",
-#         ["2022-06-28", "2022-06-30", "2022-07-06", "2022-07-08"],
-#         data_path_folder,
-#         fast_load=fast_load,
-#         eda_segment_width=segment_width,
-#         load_eda=show_eda_fig or show_eda_table,
-#         load_hr_bpm=show_hr_bpm_fig,
-#         load_hr_ibi=show_hr_ibi_fig,
-#     ),
-#     Subject(
-#         "02",
-#         ["2022-07-04", "2022-07-05", "2022-07-06"],
-#         data_path_folder,
-#         fast_load=fast_load,
-#         eda_segment_width=segment_width,
-#         load_eda=show_eda_fig or show_eda_table,
-#         load_hr_bpm=show_hr_bpm_fig,
-#         load_hr_ibi=show_hr_ibi_fig,
-#     ),
-#     Subject(
-#         "03",
-#         ["2022-06-27", "2022-06-29", "2022-07-05", "2022-07-07"],
-#         data_path_folder,
-#         fast_load=fast_load,
-#         eda_segment_width=segment_width,
-#         load_eda=show_eda_fig or show_eda_table,
-#         load_hr_bpm=show_hr_bpm_fig,
-#         load_hr_ibi=show_hr_ibi_fig,
-#     ),
-#     Subject(
-#         "04",
-#         ["2022-06-29", "2022-07-07", "2022-07-08"],
-#         data_path_folder,
-#         fast_load=fast_load,
-#         eda_segment_width=segment_width,
-#         load_eda=show_eda_fig or show_eda_table,
-#         load_hr_bpm=show_hr_bpm_fig,
-#         load_hr_ibi=show_hr_ibi_fig,
-#     ),
-#     Subject(
-#         "05",
-#         ["2022-06-27", "2022-07-01"],
-#         data_path_folder,
-#         fast_load=fast_load,
-#         eda_segment_width=segment_width,
-#         load_eda=show_eda_fig or show_eda_table,
-#         load_hr_bpm=show_hr_bpm_fig,
-#         load_hr_ibi=show_hr_ibi_fig,
-#     ),
-#     Subject(
-#         "06",
-#         ["2022-06-30", "2022-07-04"],
-#         data_path_folder,
-#         fast_load=fast_load,
-#         eda_segment_width=segment_width,
-#         load_eda=show_eda_fig or show_eda_table,
-#         load_hr_bpm=show_hr_bpm_fig,
-#         load_hr_ibi=show_hr_ibi_fig,
-#     ),
-# ]
-subjects = [
-    Subject(
-        "01",
-        ["2022-06-28"],
+
+def main():
+    subjects = Subjects(
         data_path_folder,
         fast_load=fast_load,
-        eda_segment_width=segment_width,
+        eda_segment_width=eda_segment_width,
         load_eda=show_eda_fig or show_eda_table,
         load_hr_bpm=show_hr_bpm_fig,
         load_hr_ibi=show_hr_ibi_fig,
-    ),
-]
+    )
 
+    subjects.add("01", ["2022-06-28", "2022-06-30", "2022-07-06", "2022-07-08"])
+    subjects.add("02", ["2022-07-04", "2022-07-05", "2022-07-06"])
+    subjects.add("03", ["2022-06-27", "2022-06-29", "2022-07-05"])  # "2022-07-07" <- No EDA peaks found
+    subjects.add("04", ["2022-06-29", "2022-07-07", "2022-07-08"])
+    subjects.add("05", ["2022-06-27", "2022-07-01"])
+    subjects.add("06", ["2022-06-30", "2022-07-04"])
 
-def main():
     if show_eda_table:
-        TableUtils.print_document_header()
+        elements = TableUtils.print_document_header("results")
         for subject in subjects:
             subject.print_table(
                 data_type=DataType.EDA,
-                activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
+                activity_types=(ActivityType.BASELINE, ActivityType.Camp, ActivityType.VR),
                 date_indices=date_indices,
             )
+            print(r"")
+        subjects.print_table(
+                data_type=DataType.EDA,
+                activity_types=(ActivityType.BASELINE, ActivityType.Camp, ActivityType.VR),
+                date_indices=date_indices,
+        )
         print("")
-        TableUtils.print_document_tail()
+        TableUtils.print_document_tail(elements)
 
     if show_eda_fig or show_hr_bpm_fig or show_hr_ibi_fig:
         fig_eda = None
@@ -109,7 +57,7 @@ def main():
             if show_eda_fig:
                 fig_eda = subject.plot(
                     data_type=DataType.EDA,
-                    activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
+                    activity_types=(ActivityType.BASELINE, ActivityType.Camp, ActivityType.VR),
                     figure=fig_eda,
                     date_indices=date_indices,
                     colors=("g", "b", "r"),
@@ -118,7 +66,7 @@ def main():
             if show_hr_bpm_fig:
                 fig_hr_bpm = subject.plot(
                     data_type=DataType.HR_BPM,
-                    activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
+                    activity_types=(ActivityType.BASELINE, ActivityType.Camp, ActivityType.VR),
                     figure=fig_hr_bpm,
                     date_indices=date_indices,
                     colors=("g", "b", "r"),
@@ -126,7 +74,7 @@ def main():
             if show_hr_ibi_fig:
                 fig_hr_ibi = subject.plot(
                     data_type=DataType.HR_IBI,
-                    activity_types=(ActivityType.MEDITATION, ActivityType.Camp, ActivityType.VR),
+                    activity_types=(ActivityType.BASELINE, ActivityType.Camp, ActivityType.VR),
                     figure=fig_hr_ibi,
                     date_indices=date_indices,
                     colors=("g", "b", "r"),

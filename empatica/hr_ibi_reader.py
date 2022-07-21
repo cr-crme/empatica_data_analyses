@@ -21,6 +21,9 @@ class HrIbiReader(EmpaticaVrCampReader):
     def _table_columns(self) -> str:
         raise NotImplementedError("No table was implemented for HrIbiReader data")
 
+    def get_table_value(self, activity_type: ActivityType = ActivityType.All, **options) -> tuple:
+        raise NotImplementedError("No table was implemented for HrIbiReader data")
+
     def _print_table_header(self) -> None:
         raise NotImplementedError("No table was implemented for HrIbiReader data")
 

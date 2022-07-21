@@ -87,7 +87,11 @@ class EmpaticaReader(ABC):
         """Print the actual header"""
 
     @abstractmethod
-    def print_table(self, activity_type: ActivityType = ActivityType.All, **options) -> None:
+    def get_table_value(self, activity_type: ActivityType = ActivityType.All, **options) -> tuple:
+        """Returns all the elements that print_table will print"""
+
+    @abstractmethod
+    def print_table(self, activity_type: ActivityType = ActivityType.All, values: tuple = None, **options) -> None:
         """Print the relevant information as a LaTeX table"""
 
     @staticmethod

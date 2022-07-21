@@ -20,7 +20,7 @@ class DataTypeNotLoadedError(RuntimeError):
 class ActivityType(Enum):
     Camp = "camp"
     VR = "vr"
-    MEDITATION = "meditation"
+    BASELINE = "baseline"
     All = "all"
 
 

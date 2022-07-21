@@ -11,7 +11,7 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
     def __init__(self, data_path: str, n_cols: int, timing_path: str):
         super(EmpaticaVrCampReader, self).__init__(data_path, n_cols)
         self.timings = self._parse_timings(timing_path)
-        self.vr_index, self.camp_index, self.meditation_index = self._parse_timings_indices()
+        self.vr_index, self.camp_index, self.baseline_index = self._parse_timings_indices()
 
     def t(self, activity_type: ActivityType = None):
         if activity_type is None:
@@ -20,8 +20,8 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
             return self.t_data[self.camp_index[0] : self.camp_index[1]]
         elif activity_type == ActivityType.VR:
             return self.t_data[self.vr_index[0] : self.vr_index[1]]
-        elif activity_type == ActivityType.MEDITATION:
-            return self.t_data[self.meditation_index[0] : self.meditation_index[1]]
+        elif activity_type == ActivityType.BASELINE:
+            return self.t_data[self.baseline_index[0]: self.baseline_index[1]]
         else:
             raise ActivityTypeNotImplementedError(activity_type)
 
@@ -32,8 +32,8 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
             return self.daytime_data[self.camp_index[0] : self.camp_index[1]]
         elif activity_type == ActivityType.VR:
             return self.daytime_data[self.vr_index[0] : self.vr_index[1]]
-        elif activity_type == ActivityType.MEDITATION:
-            return self.daytime_data[self.meditation_index[0] : self.meditation_index[1]]
+        elif activity_type == ActivityType.BASELINE:
+            return self.daytime_data[self.baseline_index[0]: self.baseline_index[1]]
         else:
             raise ActivityTypeNotImplementedError(activity_type)
 
@@ -44,8 +44,8 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
             return self.actual_data[self.camp_index[0] : self.camp_index[1], :]
         elif activity_type == ActivityType.VR:
             return self.actual_data[self.vr_index[0] : self.vr_index[1], :]
-        elif activity_type == ActivityType.MEDITATION:
-            return self.actual_data[self.meditation_index[0] : self.meditation_index[1], :]
+        elif activity_type == ActivityType.BASELINE:
+            return self.actual_data[self.baseline_index[0]: self.baseline_index[1], :]
         else:
             raise ActivityTypeNotImplementedError(activity_type)
 
@@ -54,7 +54,7 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
         """Find the longest activity"""
         current_length = -1
         current_activity = ActivityType.All
-        for activity in (ActivityType.MEDITATION, ActivityType.Camp, ActivityType.MEDITATION):
+        for activity in (ActivityType.BASELINE, ActivityType.Camp, ActivityType.BASELINE):
             t = self.t(activity)
             if t[-1] - t[0] > current_length:
                 current_length = t[-1] - t[0]
@@ -68,8 +68,8 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
             "Time end VR",
             "Time start camp",
             "Time end camp",
-            "Time start meditation",
-            "Time end meditation",
+            "Time start baseline",
+            "Time end baseline",
         )
         worksheet = openpyxl.load_workbook(timing_filepath).active
 
@@ -117,11 +117,11 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
         vr_ending_index = -1
         camp_starting_index = -1
         camp_ending_index = -1
-        meditation_starting_index = -1
-        meditation_ending_index = -1
+        baseline_starting_index = -1
+        baseline_ending_index = -1
         for i, daytime in enumerate(self.daytime_data):
             # Reminder, self.timings is organised as such: Time start VR, Time end VR, Time start camp,
-            # Time end camp, Time start meditation, Time end meditation
+            # Time end camp, Time start baseline, Time end baseline
             daytime_time = daytime.time()
             if vr_starting_index < 0 and self.timings[0] < daytime_time:
                 vr_starting_index = i
@@ -131,23 +131,23 @@ class EmpaticaVrCampReader(EmpaticaReader, ABC):
                 camp_starting_index = i
             elif camp_ending_index < 0 and self.timings[3] < daytime_time:
                 camp_ending_index = i
-            elif meditation_starting_index < 0 and self.timings[4] < daytime_time:
-                meditation_starting_index = i
-            elif meditation_ending_index < 0 and self.timings[5] < daytime_time:
-                meditation_ending_index = i
+            elif baseline_starting_index < 0 and self.timings[4] < daytime_time:
+                baseline_starting_index = i
+            elif baseline_ending_index < 0 and self.timings[5] < daytime_time:
+                baseline_ending_index = i
 
         if (
             vr_starting_index < 0
             or vr_ending_index < 0
             or camp_starting_index < 0
             or camp_ending_index < 0
-            or meditation_starting_index < 0
-            or meditation_ending_index < 0
+            or baseline_starting_index < 0
+            or baseline_ending_index < 0
         ):
             raise ValueError("The timings could not be read for the current subject and date")
 
         return (
             (vr_starting_index, vr_ending_index),
             (camp_starting_index, camp_ending_index),
-            (meditation_starting_index, meditation_ending_index),
+            (baseline_starting_index, baseline_ending_index),
         )
