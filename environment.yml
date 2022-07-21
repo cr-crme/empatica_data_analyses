@@ -1,0 +1,16 @@
+name: empatica
+channels:
+- conda-forge
+- default
+dependencies:
+- python >=3.10
+- scipy
+- pip
+- black
+- openpyxl
+- matplotlib
+- scikit-learn
+- cvxopt
+- pytorch
+- pip:
+    - heartpy
