@@ -2,7 +2,7 @@ from empatica import ActivityType, DataType, Subjects, PlotUtils, TableUtils
 
 
 data_path_folder = (
-    "C:\\Users\\pariterre\\Nextcloud\\Documents\\Technopole\\Projets\\DanielleLevac\\Empatica data\\Data\\"
+    "C:\\Users\\pariterre\\Nextcloud\\Documents\\Technopole\\Projets\\DanielleLevac\\Empatica data\\Data\\\Empatica - raw data\\"
 )
 
 fast_load = True

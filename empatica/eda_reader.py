@@ -147,7 +147,7 @@ class EdaReader(EmpaticaVrCampReader):
 
     def activity_time(self, activity_type: ActivityType) -> float:
         """Time of the activity in second"""
-        return float(np.mean([v[1] - v[0] for v in self.pyeda_peaks[activity_type][1]["segment_indices"]]))
+        return float(np.mean([v[1] - v[0] for v in self.pyeda_peaks[activity_type][1]["segment_indices"]])) / self.rate
 
     def peak_per_second(self, activity_type: ActivityType) -> float:
         """Number of peak per second during the activity"""
